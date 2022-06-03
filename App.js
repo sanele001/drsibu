@@ -4,9 +4,9 @@ import * as Font from "expo-font";
 import { useFonts } from "expo-font";
 
 import { StyleSheet, Text, View } from "react-native";
-
-import Mycalendar from "./screens/calender";
-import Home from "./screens/home";
+import { NavigationContainer } from "@react-navigation/native";
+import Landing from "./screens/landing";
+import Mainstack from "./navigation/stacknav";
 
 export default function App() {
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function App() {
     "Poppins-Light": require("./assets/Poppins-Light.ttf"),
   });
   return (
-    <View>
-      <Home />
-    </View>
+    <NavigationContainer>
+      <Mainstack />
+    </NavigationContainer>
   );
 }
