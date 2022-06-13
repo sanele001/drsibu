@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,14 +15,16 @@ import moment from "moment";
 import Icon from "react-native-vector-icons/FontAwesome";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DropDownPicker from "react-native-dropdown-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 export default function Form() {
-  const [name, Setname] = useState("");
-  const [dateinput, setDateinput] = useState("");
-  const [date, setDate] = useState(rootdate);
+  const [name, setName] = useState("");
+  const [myperiod, setPeriod] = useState("");
+  const [dateinput, setDateinput] = useState(new Date());
   const [show, setShow] = useState(false);
   //
   const [open, setOpen] = useState(false);
@@ -33,6 +35,33 @@ export default function Form() {
     { label: "30 days", value: 30 },
   ]);
   //
+
+  const maininfamationobj = {
+    name: name,
+    lastperiod: dateinput,
+    cycle: value,
+    period: myperiod,
+  };
+
+  const storeData = async (maininfamationobj) => {
+    try {
+      const jsonValue = JSON.stringify(maininfamationobj);
+      await AsyncStorage.setItem("mainobject", jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  const savedetails = () => {
+    if (name == "" || myperiod == "" || !value) {
+      return alert("all fields must be filled");
+    } else {
+      storeData(maininfamationobj);
+      setName("");
+      setPeriod("");
+      alert("success");
+    }
+  };
 
   return (
     <View style={styles.holder}>
@@ -46,7 +75,12 @@ export default function Form() {
         >
           First name
         </Text>
-        <TextInput style={styles.input} placeholder="Enter your First name" />
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your First name"
+          onChangeText={(text) => setName(text)}
+          value={name}
+        />
       </View>
 
       <View>
@@ -57,29 +91,28 @@ export default function Form() {
             fontWeight: "bold",
           }}
         >
-          Last Period start date
+          When did your last period start?
         </Text>
         {show && (
           <DateTimePicker
-            value={new Date()}
+            value={dateinput}
             display="spinner"
             mode="date"
-            onChange={(event, date) => {
-              if (event) {
-                setDate(date);
-              }
-
+            onChange={(event, selected) => {
               if (show) {
                 setShow(false);
+                setDateinput(selected);
               }
             }}
+            textColor="black"
+            style={{ color: "red" }}
           />
         )}
         <View style={styles.inputview}>
           <TextInput
             style={styles.dateinput}
             placeholder="05/07/2020"
-            value={moment(date).format("ll")}
+            value={moment(dateinput).format("ll")}
             editable={false}
           />
           <Icon
@@ -97,11 +130,11 @@ export default function Form() {
             fontFamily: "Poppins-Light",
             fontSize: 15,
             fontWeight: "bold",
-            marginBottom: 10,
           }}
         >
           How long is your cycle?
         </Text>
+        <Text style={{ marginBottom: 10 }}>everage cycle is 28 days</Text>
         <DropDownPicker
           open={open}
           value={value}
@@ -121,9 +154,16 @@ export default function Form() {
         >
           How long is your period?
         </Text>
-        <TextInput style={styles.input} placeholder="Enter your First name" />
+        <Text>everage period is 7 days.</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter the length on your last period"
+          keyboardType="numeric"
+          onChangeText={(text) => setPeriod(text)}
+          value={myperiod}
+        />
       </View>
-      <TouchableOpacity style={styles.btn}>
+      <TouchableOpacity style={styles.btn} onPress={savedetails}>
         <Text
           style={{
             color: colors.primary,
@@ -142,7 +182,6 @@ const styles = StyleSheet.create({
   holder: {
     width: windowWidth,
     height: windowHeight,
-    padding: 10,
   },
   input: {
     backgroundColor: "white",

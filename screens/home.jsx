@@ -12,6 +12,9 @@ import { colors } from "../brand";
 import Icon from "react-native-vector-icons/FontAwesome";
 import CalendarStrip from "react-native-calendar-strip";
 import CircularProgress from "react-native-circular-progress-indicator";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
@@ -33,7 +36,7 @@ function Datestrip() {
   );
 }
 
-function Indicators() {
+function Indicators({ usename }) {
   return (
     <View style={{ width: windowWidth, padding: 10 }}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -44,7 +47,7 @@ function Indicators() {
             color: colors.font,
           }}
         >
-          Asanda
+          {usename ? usename : "asanda.."}
         </Text>
         <View style={{ flexDirection: "row" }}>
           <View style={style.circles}>
@@ -65,7 +68,57 @@ function Indicators() {
   );
 }
 
-function Progess() {
+function Progess({ usecycle, nextPeriod }) {
+  const [symptomsarr, setSymptomsarr] = useState([]);
+  const [history, setHistroy] = useState([]);
+
+  const getsymptomsarr = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("symptomsarr");
+      const sypmt =
+        jsonValue != null
+          ? setSymptomsarr(JSON.parse(jsonValue))
+          : setSymptomsarr([]);
+      const histValue = await AsyncStorage.getItem("symptomsarr");
+      const hist =
+        histValue != null ? setHistroy(JSON.parse(histValue)) : setHistroy([]);
+    } catch (e) {
+      // error reading value
+    }
+  };
+
+  useEffect(() => {
+    getsymptomsarr();
+  }, []);
+  const days = Number(usecycle);
+  // calculate difference betwee dates to come with value
+  const target = moment(nextPeriod).add(days, "days");
+  const date2 = new Date();
+  const diffTime = Math.abs(date2 - target);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  /// culculate max value
+  const valuemax = Number(usecycle);
+  const myvalue = Math.abs(valuemax - diffDays);
+  // sorting out an object we going to push to history
+
+  const Preperedobjtostore = {
+    cyclestart: nextPeriod,
+    cycleend: target,
+    symptarr: symptomsarr,
+  };
+  const storeData = async () => {
+    try {
+      const jsonValue = JSON.stringify(history.push(Preperedobjtostore));
+      await AsyncStorage.setItem("history", jsonValue);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  if (myvalue == days || myvalue > days) {
+    storeData();
+  }
+
   return (
     <View
       style={{
@@ -76,9 +129,9 @@ function Progess() {
       }}
     >
       <CircularProgress
-        value={10}
+        value={myvalue}
         radius={120}
-        maxValue={28}
+        maxValue={valuemax}
         title="Cycle day"
         titleStyle={style.progresstitle}
         progressValueColor={colors.tertiary}
@@ -92,7 +145,17 @@ function Progess() {
   );
 }
 
-function QuickView({ move }) {
+function QuickView({ move, nextPeriod, usecycle, gotomore }) {
+  const next = () => {
+    // taking cycle string tuning into into a number to add it to moment below.
+    const days = Number(usecycle);
+    if (nextPeriod) {
+      const tempdate = moment(nextPeriod).add(days, "days").calendar();
+      return tempdate;
+    } else {
+      return "Jan 6 1998";
+    }
+  };
   return (
     <View
       style={{
@@ -102,7 +165,7 @@ function QuickView({ move }) {
         justifyContent: "space-around",
       }}
     >
-      <View style={style.quickviewcard}>
+      <View>
         <TouchableOpacity onPress={move} style={style.quickviewcard}>
           <Icon name="calendar-o" size={30} color={colors.primary} />
           <Text
@@ -124,28 +187,49 @@ function QuickView({ move }) {
           Low
         </Text>
       </View>
-      <View style={style.quickviewcard}>
+      <TouchableOpacity style={style.quickviewcard} onPress={gotomore}>
         <Icon name="tint" size={30} color={colors.primary} />
         <Text style={{ marginTop: 10, fontWeight: "bold", color: colors.font }}>
           Next Period
         </Text>
         <Text style={{ fontFamily: "Poppins-Light", color: colors.font }}>
-          Jun 23 2022
+          {moment(next()).format("LL")}
         </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
 
 export default function Home({ navigation }) {
+  const [user, setUser] = useState({});
   const nextscren = () => navigation.navigate("Details");
+  const gotohistory = () => navigation.navigate("More");
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("mainobject");
+
+      return jsonValue != null ? setUser(JSON.parse(jsonValue)) : null;
+    } catch (e) {
+      // error reading value
+      if (e) {
+        alert("something went wrong please restart the app");
+      }
+      console.log(e);
+    }
+  };
 
   return (
     <ScrollView>
       <SafeAreaView>
         <Datestrip />
-        <Indicators />
-        <Progess />
+
+        <Indicators usename={user.name} />
+        <Progess usecycle={user.cycle} nextPeriod={user.lastperiod} />
         <Text
           style={{
             fontFamily: "Poppins-Light",
@@ -171,7 +255,12 @@ export default function Home({ navigation }) {
         >
           Quick View
         </Text>
-        <QuickView move={nextscren} />
+        <QuickView
+          move={nextscren}
+          nextPeriod={user.lastperiod}
+          usecycle={user.cycle}
+          gotomore={gotohistory}
+        />
       </SafeAreaView>
     </ScrollView>
   );

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Landing from "../screens/landing";
 import Form from "../screens/form";
 import Btabs from "./bottomtabs";
+import More from "../screens/more";
 const Stack = createNativeStackNavigator();
 
 function Rootstack() {
@@ -32,6 +33,11 @@ export default function Mainstack() {
         name="Details"
         component={Form}
         options={{ title: "Cycle Details" }}
+      />
+      <Stack.Screen
+        name="More"
+        component={More}
+        options={{ title: "Cycle history" }}
       />
     </Stack.Navigator>
   );
