@@ -15,6 +15,8 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Form from "./form";
+import { Modal } from "react-native-web";
 
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
@@ -47,7 +49,7 @@ function Indicators({ usename }) {
             color: colors.font,
           }}
         >
-          {usename ? usename : "asanda.."}
+          {usename ? usename : "New user"}
         </Text>
         <View style={{ flexDirection: "row" }}>
           <View style={style.circles}>
@@ -70,18 +72,21 @@ function Indicators({ usename }) {
 
 function Progess({ usecycle, nextPeriod }) {
   const [symptomsarr, setSymptomsarr] = useState([]);
-  const [history, setHistroy] = useState([]);
+  const [myhistory, setMyhistroy] = useState([]);
 
   const getsymptomsarr = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("symptomsarr");
+
       const sypmt =
         jsonValue != null
           ? setSymptomsarr(JSON.parse(jsonValue))
           : setSymptomsarr([]);
-      const histValue = await AsyncStorage.getItem("symptomsarr");
+      const histValue = await AsyncStorage.getItem("history");
       const hist =
-        histValue != null ? setHistroy(JSON.parse(histValue)) : setHistroy([]);
+        histValue != null
+          ? setMyhistroy(JSON.parse(histValue))
+          : setMyhistroy([]);
     } catch (e) {
       // error reading value
     }
@@ -101,14 +106,15 @@ function Progess({ usecycle, nextPeriod }) {
   const myvalue = Math.abs(valuemax - diffDays);
   // sorting out an object we going to push to history
 
-  const Preperedobjtostore = {
-    cyclestart: nextPeriod,
-    cycleend: target,
-    symptarr: symptomsarr,
-  };
   const storeData = async () => {
+    const Preperedobjtostore = {
+      cyclestart: nextPeriod,
+      cycleend: target,
+      symptarr: symptomsarr,
+    };
+    const data = [...myhistory, Preperedobjtostore];
     try {
-      const jsonValue = JSON.stringify(history.push(Preperedobjtostore));
+      const jsonValue = JSON.stringify(data);
       await AsyncStorage.setItem("history", jsonValue);
     } catch (e) {
       console.log(e);
@@ -129,7 +135,7 @@ function Progess({ usecycle, nextPeriod }) {
       }}
     >
       <CircularProgress
-        value={myvalue}
+        value={myvalue ? myvalue : 0}
         radius={120}
         maxValue={valuemax}
         title="Cycle day"
@@ -146,11 +152,14 @@ function Progess({ usecycle, nextPeriod }) {
 }
 
 function QuickView({ move, nextPeriod, usecycle, gotomore }) {
+  const [nextdate, setNextdate] = useState("");
+
   const next = () => {
     // taking cycle string tuning into into a number to add it to moment below.
     const days = Number(usecycle);
     if (nextPeriod) {
-      const tempdate = moment(nextPeriod).add(days, "days").calendar();
+      const tempdate = moment(nextPeriod).add(days, "days");
+      //setNextdate(tempdate);
       return tempdate;
     } else {
       return "Jan 6 1998";
@@ -202,12 +211,17 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
 
 export default function Home({ navigation }) {
   const [user, setUser] = useState({});
+
   const nextscren = () => navigation.navigate("Details");
   const gotohistory = () => navigation.navigate("More");
+  const gotodiary = () => navigation.navigate("Diary");
 
   useEffect(() => {
-    getData();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      getData();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const getData = async () => {
     try {
@@ -244,6 +258,30 @@ export default function Home({ navigation }) {
           hormone—luteinizing hormone—causes the ovary to release its egg. This
           event is called ovulation.
         </Text>
+        <TouchableOpacity
+          style={{
+            width: "80%",
+            borderWidth: 1,
+            borderColor: colors.primary,
+            alignSelf: "center",
+            alignItems: "center",
+            padding: 10,
+            marginTop: 10,
+            marginBottom: 10,
+            borderRadius: 9,
+          }}
+          onPress={gotodiary}
+        >
+          <Text
+            style={{
+              fontFamily: "Poppins-Light",
+              fontWeight: "bold",
+              color: colors.secondary,
+            }}
+          >
+            Journal
+          </Text>
+        </TouchableOpacity>
         <Text
           style={{
             marginTop: 10,
@@ -285,6 +323,6 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: "lightgrey",
     borderRadius: 9,
-    backgroundColor: "lavender",
+    backgroundColor: "white",
   },
 });

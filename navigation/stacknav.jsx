@@ -4,6 +4,8 @@ import Landing from "../screens/landing";
 import Form from "../screens/form";
 import Btabs from "./bottomtabs";
 import More from "../screens/more";
+import Journal from "../screens/journal";
+import { Button } from "react-native";
 const Stack = createNativeStackNavigator();
 
 function Rootstack() {
@@ -38,6 +40,13 @@ export default function Mainstack() {
         name="More"
         component={More}
         options={{ title: "Cycle history" }}
+      />
+      <Stack.Screen
+        name="Diary"
+        component={Journal}
+        options={{
+          title: "Diary",
+        }}
       />
     </Stack.Navigator>
   );

@@ -1,17 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import * as Font from "expo-font";
 import { useFonts } from "expo-font";
 
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, AppState } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import Landing from "./screens/landing";
+
 import Mainstack from "./navigation/stacknav";
 
 export default function App() {
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
   useEffect(() => {
     loadFonts();
-  });
+
+    ///
+  }, []);
 
   async function loadFonts() {
     await Font.loadAsync({

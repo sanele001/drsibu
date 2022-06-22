@@ -55,16 +55,19 @@ function Clndr() {
   }
 
   useEffect(() => {
-    getData();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      getData();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   let newDaysObject = {};
   temparreydates.forEach((day) => {
     newDaysObject[day] = {
       selected: false,
 
-      color: "lavender",
-      textColor: "red",
+      color: "#E03B8B",
+      textColor: "white",
     };
   });
 
@@ -75,7 +78,9 @@ function Clndr() {
     } catch (e) {
       // error reading value
       if (e) {
-        alert("something went wrong please restart the app");
+        alert(
+          "you haven't added any details, please go to home and change cycle details."
+        );
       }
       console.log(e);
     }
@@ -116,7 +121,9 @@ function Fourtabs({ closingmodal }) {
     } catch (e) {
       // error reading value
       if (e) {
-        alert("something went wrong please restart the app");
+        alert(
+          "please change cycle details. go to home and click on change details and save your cycle details"
+        );
       }
       console.log(e);
     }

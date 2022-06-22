@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from "react-native";
 import { colors } from "../brand";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -18,45 +19,81 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const historyobject = [
-  {
-    cycleend: "20 jan 2022",
-    cyclestart: "20,Jan 2023",
-    perioslenght: "5",
-    symptomsloge: ["happy", "sad", "cramps"],
-  },
-  {
-    cycleend: "20 jan 2022",
-    cyclestart: "20,Jan 2023",
-    perioslenght: "5",
-    symptomsloge: ["happy", "sad", "mmm"],
-  },
-  {
-    cycleend: "20 jan 2022",
-    cyclestart: "20,Jan 2023",
-    perioslenght: "5",
-    symptomsloge: ["happy", "sad", "mmm"],
-  },
-  {
-    cycleend: "20 jan 2022",
-    cyclestart: "20,Jan 2023",
-    perioslenght: "5",
-    symptomsloge: ["happy", "sad", "mmm"],
-  },
-];
+function Foot() {
+  return <View style={{ height: 150 }}></View>;
+}
+
+function Emptylist() {
+  return (
+    <View style={{ padding: 20 }}>
+      <Text>You dont have data to show yet.</Text>
+    </View>
+  );
+}
+
 export default function More() {
   const [symptomslist, setSymtomslist] = useState([]);
+  const [logedhistroy, setLogedhistory] = useState([]);
+  const [Current, setCurrent] = useState("");
 
   useEffect(() => {
-    getList();
+    getList().then(getCurrent());
   }, []);
+
+  const showpromt = (index) => {
+    Alert.alert("Alert Title", "My Alert Msg", [
+      {
+        text: "Remove",
+        onPress: () => removeitem(index),
+      },
+      {
+        text: "Cancel",
+
+        style: "cancel",
+      },
+    ]);
+  };
+  // removing item using splice method, passing the index
+  const removeitem = (index) => {
+    const temparrey = logedhistroy;
+    temparrey.splice(index, 1);
+    setLogedhistory([...temparrey]);
+    // dont fogert to save from storage and remove this note when it's done
+    storeData(logedhistroy);
+  };
+
+  const storeData = async (value) => {
+    try {
+      await AsyncStorage.setItem("history", value);
+    } catch (e) {
+      // saving error
+    }
+  };
 
   const getList = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("symptomsarr");
+      const symmptomdata =
+        jsonValue != null
+          ? setSymtomslist(JSON.parse(jsonValue))
+          : setSymtomslist([]);
+      const gethistory = await AsyncStorage.getItem("history");
+
+      const histdata =
+        gethistory != null
+          ? setLogedhistory(JSON.parse(gethistory))
+          : setLogedhistory([]);
+    } catch (e) {
+      // error reading value
+    }
+  };
+
+  const getCurrent = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("mainobject");
       return jsonValue != null
-        ? setSymtomslist(JSON.parse(jsonValue))
-        : setSymtomslist([]);
+        ? setCurrent(JSON.parse(jsonValue))
+        : setCurrent(null);
     } catch (e) {
       // error reading value
     }
@@ -69,7 +106,9 @@ export default function More() {
           <Text style={styles.title}>Current cycle</Text>
 
           <Text style={{ fontFamily: "Poppins-Light" }}>
-            Clycle end: 25 jan 2022
+            {Current
+              ? moment(Current.lastperiod).format("llll")
+              : "jun 25 1998"}
           </Text>
         </View>
         <View
@@ -85,6 +124,7 @@ export default function More() {
           </View>
         </View>
       </View>
+
       <Text
         style={{
           marginLeft: 20,
@@ -95,10 +135,11 @@ export default function More() {
       >
         History
       </Text>
+
       <View style={{ height: "70%" }}>
         <FlatList
-          data={historyobject}
-          renderItem={({ item }) => (
+          data={logedhistroy}
+          renderItem={({ item, index }) => (
             <View style={styles.listcard}>
               <Text style={styles.generaltext}>
                 Cycle start : {item.cyclestart}
@@ -112,8 +153,8 @@ export default function More() {
               <Text style={{ marginTop: 10, color: colors.tertiary }}>
                 Symptoms
               </Text>
-              <View style={{ flexDirection: "row" }}>
-                {item.symptomsloge.map((symptom) => (
+              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                {item.symptarr.map((symptom) => (
                   <Text
                     style={{ marginRight: 10, fontFamily: "Poppins-Light" }}
                   >
@@ -121,8 +162,16 @@ export default function More() {
                   </Text>
                 ))}
               </View>
+              <TouchableOpacity
+                style={{ alignSelf: "flex-end" }}
+                onPress={() => showpromt(index)}
+              >
+                <Icon name="trash-o" size={30} color={colors.secondary} />
+              </TouchableOpacity>
             </View>
           )}
+          ListEmptyComponent={<Emptylist />}
+          ListFooterComponent={<Foot />}
         />
       </View>
     </View>
@@ -141,6 +190,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 10,
     padding: 10,
+    flexWrap: "wrap",
   },
   title: {
     fontFamily: "Poppins-Light",

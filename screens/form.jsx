@@ -20,8 +20,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+const tkn = "ExponentPushToken[bWXS3QKjpyDgvBfVe4VP7L]";
 
-export default function Form() {
+export default function Form({ renderit }) {
   const [name, setName] = useState("");
   const [myperiod, setPeriod] = useState("");
   const [dateinput, setDateinput] = useState(new Date());

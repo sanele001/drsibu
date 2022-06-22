@@ -68,16 +68,18 @@ function Bar() {
 }
 export default function Analysis() {
   return (
-    <View style={{ padding: 10, alignItems: "center" }}>
-      <Donatchart />
-      <Text style={{ fontFamily: "Poppins-Light" }}>
-        Lorem Ipsum is simply dummy text of the printing and typesetting
-        industry. Lorem Ipsum has been the industry's standard dummy text ever
-        since the 1500s, when an unknown printer took a galley of type and
-        scrambled it to make a type specimen book.
-      </Text>
-      <Bar />
-    </View>
+    <ScrollView>
+      <View style={{ padding: 10, alignItems: "center" }}>
+        <Donatchart />
+        <Text style={{ fontFamily: "Poppins-Light" }}>
+          Lorem Ipsum is simply dummy text of the printing and typesetting
+          industry. Lorem Ipsum has been the industry's standard dummy text ever
+          since the 1500s, when an unknown printer took a galley of type and
+          scrambled it to make a type specimen book.
+        </Text>
+        <Bar />
+      </View>
+    </ScrollView>
   );
 }
 
