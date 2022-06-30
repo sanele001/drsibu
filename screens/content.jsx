@@ -20,20 +20,58 @@ import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 
 const backgoundpic = require("../assets/period2.png");
-const mainpic = require("../assets/period1.jpg");
+
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+var Airtable = require("airtable");
+var base = new Airtable({ apiKey: "keydANeIcMSXo1If5" }).base(
+  "appWDdeVKO3SSRNMi"
+);
 
 function Mainarticle() {
+  const [movivation, setMotivation] = useState("");
+
+  useEffect(() => {
+    base("Data")
+      .select({
+        // Selecting the first 3 records in Grid view:
+        maxRecords: 1,
+        view: "Grid view",
+      })
+      .eachPage(
+        function page(records) {
+          // This function (`page`) will get called for each page of records.
+
+          records.forEach(function (record) {
+            let res = record.get("affirmation");
+            setMotivation(res);
+          });
+        },
+        function done(err) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+        }
+      );
+  }, []);
+
   return (
     <View style={{ height: "40%" }}>
       <ImageBackground source={backgoundpic} style={styles.backgoundpic}>
-        <TouchableOpacity style={styles.titleholder}>
-          <Text style={{ fontSize: 15, fontWeight: "bold", color: "white" }}>
-            Daily insights
+        <View style={styles.child}>
+          <Text
+            style={{
+              color: "white",
+              fontWeight: "bold",
+              fontSize: 15,
+              textAlign: "center",
+              fontStyle: "italic",
+            }}
+          >
+            {movivation}
           </Text>
-          <Text style={{ color: "white" }}>Recommended articles</Text>
-        </TouchableOpacity>
+        </View>
       </ImageBackground>
     </View>
   );
@@ -97,10 +135,6 @@ function List({ articleData }) {
 }
 
 export default function Content() {
-  var Airtable = require("airtable");
-  var base = new Airtable({ apiKey: "keydANeIcMSXo1If5" }).base(
-    "appWDdeVKO3SSRNMi"
-  );
   const [article, setArticle] = useState([]);
 
   useEffect(() => {
@@ -108,7 +142,6 @@ export default function Content() {
   }, []);
 
   const getArticles = () => {
-    console.log("runn");
     base("Publication")
       .select({
         // Selecting the first 3 records in Grid view:
@@ -162,19 +195,26 @@ const styles = StyleSheet.create({
   backgoundpic: {
     flex: 1,
     resizeMode: "cover",
-    padding: 10,
+
     justifyContent: "flex-end",
     borderRadius: 10,
   },
   titleholder: {
     padding: 5,
     backgroundColor: colors.primary,
-    borderRadius: 10,
   },
   listtitle: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
     marginTop: 20,
+  },
+  // dark overlay on the image, it holds text
+  child: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
   },
 });

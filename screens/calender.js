@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Modal,
+  Vibration,
 } from "react-native";
 import { colors } from "../brand";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -39,7 +40,7 @@ const moody = [
   { mood: "Excited", pic: require("../assets/excited.png") },
 ];
 
-function Clndr() {
+function Clndr({ nav }) {
   const [aperiod, setAperiod] = useState({});
 
   let temparreydates = [];
@@ -55,11 +56,11 @@ function Clndr() {
   }
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
+    const unsubscribe = nav.addListener("focus", () => {
       getData();
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [nav]);
 
   let newDaysObject = {};
   temparreydates.forEach((day) => {
@@ -197,7 +198,8 @@ function Loger({ closingmodal }) {
 
   const additem = (item) => {
     setNumberofitms((prev) => [...prev, item]);
-    storesymptoms();
+
+    Vibration.vibrate();
   };
 
   const storesymptoms = async () => {
@@ -228,10 +230,13 @@ function Loger({ closingmodal }) {
           marginBottom: "15%",
         }}
       >
-        {symptoms.map((item) => {
+        {symptoms.map((item, index) => {
           return (
             <TouchableOpacity
-              style={{ justifyContent: "center", alignItems: "center" }}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+              }}
               onPress={() => additem(item.symtom)}
             >
               <Image source={item.pic} style={{ width: 50, height: 50 }} />
@@ -293,16 +298,38 @@ function Loger({ closingmodal }) {
           borderRadius: 10,
           marginTop: "10%",
         }}
+        onPress={storesymptoms}
       >
         <Text style={{ fontSize: 14, fontWeight: "bold", color: "white" }}>
           Save {numberofitems.length} selected items
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          width: "80%",
+          padding: 10,
+          alignItems: "center",
+          justifyContent: "center",
+          borderColor: colors.primary,
+          borderWidth: 1,
+
+          alignSelf: "center",
+          borderRadius: 10,
+          marginTop: "2%",
+        }}
+        onPress={() => setNumberofitms([])}
+      >
+        <Text
+          style={{ fontSize: 14, fontWeight: "bold", color: colors.primary }}
+        >
+          Clear list
         </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-export default function Mycalendar() {
+export default function Mycalendar({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const closemodal = () => {
@@ -314,7 +341,7 @@ export default function Mycalendar() {
   };
   return (
     <ScrollView style={{ padding: 10 }}>
-      <Clndr />
+      <Clndr nav={navigation} />
       <Text
         style={{
           marginTop: 20,

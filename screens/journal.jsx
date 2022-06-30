@@ -10,6 +10,7 @@ import {
   Alert,
   Modal,
   TextInput,
+  Image,
 } from "react-native";
 import { colors } from "../brand";
 import Icon from "react-native-vector-icons/Feather";
@@ -20,6 +21,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+const cry = require("../assets/cry.png");
+const happy = require("../assets/happymoji.png");
+const sad = require("../assets/sadmoji.png");
+const anger = require("../assets/angry.png");
 
 function MyCal() {
   const [day, setDay] = useState(new Date().toString());
@@ -51,6 +56,9 @@ export default function Journal() {
 
   const [mytitle, setMytitle] = useState("");
   const [mybody, setMybody] = useState("");
+  const [myEmoji, setMyEmoji] = useState("");
+
+  let emojiArrey = [cry, happy, sad, anger];
 
   useEffect(() => {
     getnote();
@@ -86,6 +94,7 @@ export default function Journal() {
     const noteobj = {
       title: mytitle,
       body: mybody,
+      moji: myEmoji,
       day: notedate,
     };
 
@@ -94,6 +103,7 @@ export default function Journal() {
     setMytitle("");
     setMybody("");
     storenote(newdata);
+    alert("Success");
   };
 
   const storenote = async (value) => {
@@ -157,7 +167,16 @@ export default function Journal() {
               <Text style={styles.fontstyle}>
                 {moment(item.day).format("llll")}
               </Text>
-              <Text style={styles.titles}>{item.title}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+
+                  alignItems: "center",
+                }}
+              >
+                <Text style={styles.titles}>{item.title}</Text>
+                <Image source={item.moji} style={{ width: 30, height: 30 }} />
+              </View>
             </TouchableOpacity>
             <Icon
               name="trash"
@@ -178,7 +197,16 @@ export default function Journal() {
             style={{ marginTop: 20, marginBottom: 30 }}
             onPress={handlemodal1}
           />
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Title</Text>
+          <View style={styles.imoji}>
+            {emojiArrey.map((pic) => (
+              <TouchableOpacity onPress={() => setMyEmoji(pic)}>
+                <Image source={pic} style={{ width: 50, height: 50 }} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            Daily journal
+          </Text>
           <TextInput
             style={{
               width: "80%",
@@ -192,7 +220,7 @@ export default function Journal() {
             onChangeText={(text) => setMytitle(text)}
             value={mytitle}
           />
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Note</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Reflactions</Text>
           <TextInput
             style={{
               width: "80%",
@@ -284,5 +312,13 @@ const styles = StyleSheet.create({
   titles: {
     color: colors.font,
     fontWeight: "bold",
+  },
+  imoji: {
+    height: 100,
+    width: "100%",
+
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
   },
 });

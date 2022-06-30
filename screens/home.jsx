@@ -22,6 +22,10 @@ const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
+// small hack to track chances of getting pregnant in quick view component
+// this variable is redifined using the progress value in the prograss component
+let cycleDay = 5;
+
 function Datestrip() {
   return (
     <View>
@@ -124,6 +128,8 @@ function Progess({ usecycle, nextPeriod }) {
   if (myvalue == days || myvalue > days) {
     storeData();
   }
+  // this variable is used in the quick view component to determine pregnancy chances
+  cycleDay = myvalue;
 
   return (
     <View
@@ -141,11 +147,11 @@ function Progess({ usecycle, nextPeriod }) {
         title="Cycle day"
         titleStyle={style.progresstitle}
         progressValueColor={colors.tertiary}
-        activeStrokeColor={colors.secondary}
+        activeStrokeColor={myvalue > 15 ? colors.tertiary : colors.primary}
         inActiveStrokeColor={"grey"}
         inActiveStrokeOpacity={0.3}
         inActiveStrokeWidth={20}
-        activeStrokeWidth={20}
+        activeStrokeWidth={10}
       />
     </View>
   );
@@ -193,11 +199,11 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
           Pregnency Chances
         </Text>
         <Text style={{ fontFamily: "Poppins-Light", color: colors.font }}>
-          Low
+          {cycleDay > 17 ? "High" : "Fair"}
         </Text>
       </View>
       <TouchableOpacity style={style.quickviewcard} onPress={gotomore}>
-        <Icon name="tint" size={30} color={colors.primary} />
+        <Icon name="tint" size={30} color={colors.secondary} />
         <Text style={{ marginTop: 10, fontWeight: "bold", color: colors.font }}>
           Next Period
         </Text>
