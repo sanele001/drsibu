@@ -22,7 +22,7 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 const tkn = "ExponentPushToken[bWXS3QKjpyDgvBfVe4VP7L]";
 
-export default function Form({ renderit }) {
+export default function Form({ renderit, navigation }) {
   const [name, setName] = useState("");
   const [myperiod, setPeriod] = useState("");
   const [dateinput, setDateinput] = useState(new Date());
@@ -36,6 +36,8 @@ export default function Form({ renderit }) {
     { label: "30 days", value: 30 },
   ]);
   //
+
+  const gotoMonitor = () => navigation.navigate("Monitor");
 
   const maininfamationobj = {
     name: name,
@@ -97,7 +99,6 @@ export default function Form({ renderit }) {
         {show && (
           <DateTimePicker
             value={dateinput}
-            display="spinner"
             mode="date"
             onChange={(event, selected) => {
               if (show) {
@@ -107,6 +108,7 @@ export default function Form({ renderit }) {
             }}
             textColor="black"
             style={{ color: "red" }}
+            maximumDate={new Date()}
           />
         )}
         <View style={styles.inputview}>
@@ -144,6 +146,11 @@ export default function Form({ renderit }) {
           setValue={setValue}
           setItems={setItems}
         />
+        <TouchableOpacity style={{ padding: 10 }} onPress={gotoMonitor}>
+          <Text style={{ fontWeight: "bold", fontStyle: "italic" }}>
+            Click here is you don't know
+          </Text>
+        </TouchableOpacity>
       </View>
       <View style={{ marginTop: 20 }}>
         <Text

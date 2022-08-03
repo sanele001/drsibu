@@ -5,6 +5,7 @@ import Form from "../screens/form";
 import Btabs from "./bottomtabs";
 import More from "../screens/more";
 import Journal from "../screens/journal";
+import CycleMonitor from "../screens/cyclemonitor";
 import { Button } from "react-native";
 const Stack = createNativeStackNavigator();
 
@@ -46,6 +47,13 @@ export default function Mainstack() {
         component={Journal}
         options={{
           title: "Diary",
+        }}
+      />
+      <Stack.Screen
+        name="Monitor"
+        component={CycleMonitor}
+        options={{
+          title: "Track Cycle lenght",
         }}
       />
     </Stack.Navigator>
