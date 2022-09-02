@@ -5,6 +5,7 @@ import {
   ScrollView,
   Dimensions,
   Image,
+  Modal,
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
@@ -15,8 +16,6 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Form from "./form";
-import { Modal } from "react-native-web";
 
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
@@ -177,14 +176,14 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
         width: windowWidth,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-around",
+        justifyContent: "space-between",
       }}
     >
       <View>
         <TouchableOpacity onPress={move} style={style.quickviewcard}>
           <Icon name="calendar-o" size={30} color={colors.primary} />
           <Text
-            style={{ marginTop: 10, fontWeight: "bold", color: colors.font }}
+            style={{ marginTop: 5, fontWeight: "bold", color: colors.font }}
           >
             Change Date
           </Text>
@@ -195,7 +194,7 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
       </View>
       <View style={style.quickviewcard}>
         <Icon name="venus" size={30} color={colors.primary} />
-        <Text style={{ marginTop: 10, fontWeight: "bold", color: colors.font }}>
+        <Text style={{ marginTop: 5, fontWeight: "bold", color: colors.font }}>
           Pregnency Chances
         </Text>
         <Text style={{ fontFamily: "Poppins-Light", color: colors.font }}>
@@ -204,7 +203,7 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
       </View>
       <TouchableOpacity style={style.quickviewcard} onPress={gotomore}>
         <Icon name="tint" size={30} color={colors.secondary} />
-        <Text style={{ marginTop: 10, fontWeight: "bold", color: colors.font }}>
+        <Text style={{ marginTop: 5, fontWeight: "bold", color: colors.font }}>
           Next Period
         </Text>
         <Text style={{ fontFamily: "Poppins-Light", color: colors.font }}>
@@ -215,8 +214,149 @@ function QuickView({ move, nextPeriod, usecycle, gotomore }) {
   );
 }
 
+function Logperiod({ close }) {
+  const [periodLogged, setperiodLogged] = useState(0);
+  const [tint, setTint] = useState([]);
+
+  useEffect(() => {
+    getPeriod();
+    handleTintOnload();
+  }, []);
+  const tempValue = [];
+  for (let i = 0; i < periodLogged; i++) {
+    tempValue.push(
+      <Icon
+        name="tint"
+        size={30}
+        color={colors.secondary}
+        style={{ marginRight: 5 }}
+      />
+    );
+  }
+  function handleTintOnload() {
+    setTint([...tint, tempValue]);
+  }
+
+  const storeLoggedPeriod = async (value) => {
+    const currentValue = value + 1;
+    try {
+      const jsonValue = JSON.stringify(currentValue);
+      console.log(jsonValue);
+      await AsyncStorage.setItem("periodlogged", jsonValue);
+    } catch (e) {
+      // saving error
+      console.log(e);
+    }
+  };
+
+  const getPeriod = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("periodlogged");
+      console.log(jsonValue);
+      return jsonValue != null ? setperiodLogged(JSON.parse(jsonValue)) : 0;
+    } catch (e) {
+      // error reading value
+      console.log(e);
+    }
+  };
+
+  const handlePeriodLogging = () => {
+    setperiodLogged(periodLogged + 1);
+
+    setTint([
+      ...tint,
+      <Icon
+        name="tint"
+        size={30}
+        color={colors.secondary}
+        style={{ marginRight: 5 }}
+      />,
+    ]);
+
+    storeLoggedPeriod(periodLogged);
+  };
+
+  const reset = () => {
+    setperiodLogged(0);
+    setTint([]);
+    storeLoggedPeriod(0);
+  };
+
+  return (
+    <View style={style.logperiodmodal}>
+      <View style={{ padding: 20 }}>
+        <Icon
+          name="close"
+          size={30}
+          color={colors.secondary}
+          style={{ marginRight: 5 }}
+          onPress={close}
+        />
+      </View>
+      <View style={{ marginTop: 100 }}>
+        <View style={{ flexDirection: "row" }}>{tempValue}</View>
+        <View style={{ width: "100%" }}>
+          <Text
+            style={{
+              borderBottomWidth: 1,
+              paddingBottom: 10,
+              fontFamily: "Poppins-Light",
+              fontSize: 20,
+            }}
+          >
+            Logged period day number : {periodLogged}
+          </Text>
+          <Text
+            style={{
+              paddingBottom: 10,
+              marginTop: 10,
+              fontFamily: "Poppins-Light",
+              fontSize: 20,
+            }}
+          >
+            your period is{" "}
+            {periodLogged > 7 ? "your period is arbnomal" : " normal"}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={{
+            width: "80%",
+            borderWidth: 1,
+            borderColor: colors.primary,
+            alignSelf: "center",
+            alignItems: "center",
+            padding: 10,
+            marginTop: 10,
+            marginBottom: 10,
+            borderRadius: 9,
+          }}
+          onPress={handlePeriodLogging}
+        >
+          <Text
+            style={{
+              fontFamily: "Poppins-Light",
+              fontWeight: "bold",
+              color: colors.secondary,
+            }}
+          >
+            Log a period
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={reset}>
+          <Text
+            style={{ fontSize: 20, fontWeight: "bold", alignSelf: "center" }}
+          >
+            Reset
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 export default function Home({ navigation }) {
   const [user, setUser] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
 
   const nextscren = () => navigation.navigate("Details");
   const gotohistory = () => navigation.navigate("More");
@@ -241,6 +381,10 @@ export default function Home({ navigation }) {
       }
       console.log(e);
     }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
   };
 
   return (
@@ -288,6 +432,30 @@ export default function Home({ navigation }) {
             Journal
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            width: "80%",
+            borderWidth: 1,
+            borderColor: colors.primary,
+            alignSelf: "center",
+            alignItems: "center",
+            padding: 10,
+            marginTop: 10,
+            marginBottom: 10,
+            borderRadius: 9,
+          }}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text
+            style={{
+              fontFamily: "Poppins-Light",
+              fontWeight: "bold",
+              color: colors.secondary,
+            }}
+          >
+            Log a period
+          </Text>
+        </TouchableOpacity>
         <Text
           style={{
             marginTop: 10,
@@ -306,6 +474,9 @@ export default function Home({ navigation }) {
           gotomore={gotohistory}
         />
       </SafeAreaView>
+      <Modal animationType="slide" transparent={false} visible={modalVisible}>
+        <Logperiod close={closeModal} />
+      </Modal>
     </ScrollView>
   );
 }
@@ -316,7 +487,7 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   progresstitle: {
-    fontSize: 20,
+    fontSize: 10,
     color: colors.primary,
     fontFamily: "Poppins-Light",
   },
@@ -325,10 +496,15 @@ const style = StyleSheet.create({
     alignItems: "center",
     paddingLeft: 5,
     paddingRight: 5,
-    height: 100,
+    paddingTop: 5,
     borderWidth: 1,
     borderColor: "lightgrey",
     borderRadius: 9,
     backgroundColor: "white",
+  },
+  logperiodmodal: {
+    width: windowWidth,
+    height: windowHeight,
+    padding: 10,
   },
 });

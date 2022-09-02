@@ -26,7 +26,7 @@ export default function CycleMonitor() {
   const [everg, setEvarage] = useState(0);
 
   useEffect(() => {
-    getTracker().then(handleEverage());
+    getTracker();
   }, []);
 
   // getting stored values
@@ -72,6 +72,8 @@ export default function CycleMonitor() {
       const adding = dateOne + dateTwo + dateThree;
       const result = adding / 3;
       setEvarage(result);
+    } else {
+      alert("three months should be captured");
     }
   };
 
@@ -131,7 +133,7 @@ export default function CycleMonitor() {
       </View>
       <View style={styles.eveSection}>
         <Text>
-          your everage cycle is {""}
+          your average cycle is {""}
           {everg != 0 ? Math.round(Number(everg) * 10) / 10 : " Unkown"} days
         </Text>
         <TouchableOpacity
@@ -143,7 +145,7 @@ export default function CycleMonitor() {
           onPress={handleEverage}
         >
           <Text style={{ color: "white", fontWeight: "bold" }}>
-            Get everage
+            Get average
           </Text>
         </TouchableOpacity>
         {openDate && (
@@ -153,7 +155,10 @@ export default function CycleMonitor() {
             onChange={(event, selectedDate) => {
               if (event.type !== "dismissed") {
                 setOpenDate(false);
+
                 handleDateInputs(selectedDate);
+              } else {
+                setOpenDate(false);
               }
             }}
             maximumDate={new Date()}

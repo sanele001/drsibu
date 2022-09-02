@@ -15,12 +15,25 @@ import CalendarStrip from "react-native-calendar-strip";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { color } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
+import { useState } from "react";
+import * as WebBrowser from "expo-web-browser";
 
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 export default function Landing({ navigation }) {
+  const handleWebterms = async () => {
+    await WebBrowser.openBrowserAsync(
+      "https://pages.flycricket.io/ivy-woman/terms.html"
+    );
+  };
+
+  const handleWebPri = async () => {
+    await WebBrowser.openBrowserAsync(
+      "https://pages.flycricket.io/ivy-woman/privacy.html"
+    );
+  };
   return (
     <View style={styles.holder}>
       <View style={styles.coulosal}>
@@ -50,13 +63,13 @@ export default function Landing({ navigation }) {
               marginTop: "20%",
             }}
           >
-            <TouchableOpacity style={styles.twobtns}>
+            <TouchableOpacity style={styles.twobtns} onPress={handleWebterms}>
               <Icon name="warning" size={20} color={colors.primary} />
               <Text>Terms</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.twobtns}>
+            <TouchableOpacity style={styles.twobtns} onPress={handleWebPri}>
               <Icon name="info-circle" size={20} color={colors.primary} />
-              <Text>About</Text>
+              <Text>Privecy</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>

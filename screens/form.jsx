@@ -9,6 +9,7 @@ import {
   Touchable,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { colors } from "../brand";
 import moment from "moment";
@@ -67,13 +68,14 @@ export default function Form({ renderit, navigation }) {
   };
 
   return (
-    <View style={styles.holder}>
+    <ScrollView style={styles.holder}>
       <View>
         <Text
           style={{
             fontFamily: "Poppins-Light",
             fontSize: 15,
             fontWeight: "bold",
+            marginTop: 20,
           }}
         >
           First name
@@ -145,10 +147,13 @@ export default function Form({ renderit, navigation }) {
           setOpen={setOpen}
           setValue={setValue}
           setItems={setItems}
+          dropDownContainerStyle={{
+            backgroundColor: "lavender",
+          }}
         />
         <TouchableOpacity style={{ padding: 10 }} onPress={gotoMonitor}>
           <Text style={{ fontWeight: "bold", fontStyle: "italic" }}>
-            Click here is you don't know
+            Click here if you don't know
           </Text>
         </TouchableOpacity>
       </View>
@@ -179,10 +184,10 @@ export default function Form({ renderit, navigation }) {
             fontWeight: "bold",
           }}
         >
-          Save datials
+          Save detials
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
