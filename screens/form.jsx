@@ -24,13 +24,18 @@ const windowHeight = Dimensions.get("window").height;
 const tkn = "ExponentPushToken[bWXS3QKjpyDgvBfVe4VP7L]";
 
 export default function Form({ renderit, navigation }) {
+  // name of a user
   const [name, setName] = useState("");
+  // period
   const [myperiod, setPeriod] = useState("");
   const [dateinput, setDateinput] = useState(new Date());
+  // state for hiding shiwing date
   const [show, setShow] = useState(false);
-  //
+  // open spinner
   const [open, setOpen] = useState(false);
+  // spinner value
   const [value, setValue] = useState(null);
+  // state for spinner dropdown
   const [items, setItems] = useState([
     { label: "28 days", value: 28 },
     { label: "29 days", value: 29 },
@@ -40,6 +45,7 @@ export default function Form({ renderit, navigation }) {
 
   const gotoMonitor = () => navigation.navigate("Monitor");
 
+  // main user infomation to store
   const maininfamationobj = {
     name: name,
     lastperiod: dateinput,
@@ -47,6 +53,7 @@ export default function Form({ renderit, navigation }) {
     period: myperiod,
   };
 
+  // store function
   const storeData = async (maininfamationobj) => {
     try {
       const jsonValue = JSON.stringify(maininfamationobj);
@@ -56,6 +63,18 @@ export default function Form({ renderit, navigation }) {
     }
   };
 
+  // key for first time user  = first
+  // check if first time user
+  const storeFirsTime = async (value) => {
+    try {
+      await AsyncStorage.setItem("first_time", value);
+    } catch (e) {
+      // saving error
+      alert(e);
+    }
+  };
+
+  // save details triggered by save btn
   const savedetails = () => {
     if (name == "" || myperiod == "" || !value) {
       return alert("all fields must be filled");
@@ -63,6 +82,7 @@ export default function Form({ renderit, navigation }) {
       storeData(maininfamationobj);
       setName("");
       setPeriod("");
+      storeFirsTime("yes");
       alert("success");
     }
   };

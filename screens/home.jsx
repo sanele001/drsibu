@@ -16,6 +16,7 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { styles } from "react-native-gifted-charts/src/BarChart/styles";
 
 const rootdate = new Date().toString();
 const windowWidth = Dimensions.get("window").width;
@@ -314,7 +315,7 @@ function Logperiod({ close }) {
               fontSize: 20,
             }}
           >
-            your period is{" "}
+            your period is
             {periodLogged > 7 ? "your period is arbnomal" : " normal"}
           </Text>
         </View>
@@ -354,21 +355,87 @@ function Logperiod({ close }) {
   );
 }
 
+function FistTime({ navtoform }) {
+  return (
+    <View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <Text style={style.fisttimeuserhello}>Hello.</Text>
+      <Text style={style.firsttimeintro}>
+        Welcome to Ivy Woman, we are going to need you to provide us with some
+        information to help us analyze your cycle.
+      </Text>
+
+      <TouchableOpacity style={style.firstitmebtn} onPress={navtoform}>
+        <Text style={{ fontSize: 30, fontWeight: "bold", color: "white" }}>
+          Let's get started
+        </Text>
+      </TouchableOpacity>
+      <View style={{ padding: 20, marginTop: 30 }}>
+        <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+          Legal Disclaimer
+        </Text>
+        <Text
+          style={{
+            fontFamily: "Poppins-Light",
+            color: colors.font,
+          }}
+        >
+          This app provides only information for educational purposes. This App
+          is not medical or treatment advice, professional diagnosis, opinion,
+          or services – and may not be treated as such by the user. As such,
+          this App may not be relied upon for the purposes of medical diagnosis
+          or as a recommendation for medical care or treatment.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 export default function Home({ navigation }) {
   const [user, setUser] = useState({});
+  // modal controler "modal for perio loger"
   const [modalVisible, setModalVisible] = useState(false);
-
-  const nextscren = () => navigation.navigate("Details");
+  // modal 2 is for first time user prompt to the form
+  const [modalVisible2, setModalVisible2] = useState(false);
+  //navigation
+  const nextscreen = () => navigation.navigate("Details");
   const gotohistory = () => navigation.navigate("More");
   const gotodiary = () => navigation.navigate("Diary");
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
-      getData();
+      // this method has conditional that calls getData func
+      //getData(); is a func responsible for loading main user object
+      getFirstTime();
     });
     return unsubscribe;
   }, [navigation]);
+  // check if user if first time
 
+  const getFirstTime = async () => {
+    try {
+      const value = await AsyncStorage.getItem("first_time");
+      console.log(value);
+      if (value == null) {
+        // value previously stored
+        setModalVisible2(true);
+      } else {
+        // go to form
+        getData();
+      }
+    } catch (e) {
+      // error reading value
+      alert(e);
+    }
+  };
+
+  // get main user object
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("mainobject");
@@ -382,9 +449,14 @@ export default function Home({ navigation }) {
       console.log(e);
     }
   };
-
+  // close modal
   const closeModal = () => {
     setModalVisible(false);
+  };
+
+  const closeModal2 = () => {
+    nextscreen();
+    setModalVisible2(false);
   };
 
   return (
@@ -468,14 +540,18 @@ export default function Home({ navigation }) {
           Quick View
         </Text>
         <QuickView
-          move={nextscren}
+          move={nextscreen}
           nextPeriod={user.lastperiod}
           usecycle={user.cycle}
           gotomore={gotohistory}
         />
       </SafeAreaView>
+      {/* this is  modal for period tracking screen  */}
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <Logperiod close={closeModal} />
+      </Modal>
+      <Modal animationType="slide" transparent={false} visible={modalVisible2}>
+        <FistTime navtoform={closeModal2} />
       </Modal>
     </ScrollView>
   );
@@ -506,5 +582,21 @@ const style = StyleSheet.create({
     width: windowWidth,
     height: windowHeight,
     padding: 10,
+  },
+  fisttimeuserhello: {
+    fontSize: 100,
+    color: colors.primary,
+    fontWeight: "bold",
+  },
+  firsttimeintro: {
+    paddingLeft: 20,
+    paddingRight: 20,
+    fontFamily: "Poppins-Light",
+  },
+  firstitmebtn: {
+    marginTop: 20,
+    backgroundColor: colors.secondary,
+    padding: 10,
+    borderRadius: 10,
   },
 });
