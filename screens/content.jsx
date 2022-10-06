@@ -9,15 +9,15 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
+  Linking,
 } from "react-native";
 import { colors } from "../brand";
-import Icon from "react-native-vector-icons/FontAwesome";
+
 import { useState } from "react";
 import { useEffect } from "react";
 
-import { WebView } from "react-native-webview";
 import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
 
 const backgoundpic = require("../assets/period2.png");
 
@@ -96,8 +96,15 @@ function List({ articleData }) {
     setModalVisible(!modalVisible);
   };
 
+  // link to load the article
   const handlelink = async (url) => {
-    await WebBrowser.openBrowserAsync(url);
+    if (Platform.OS == "ios") {
+      await WebBrowser.openBrowserAsync(url);
+    } else {
+      await WebBrowser.openBrowserAsync(
+        "https://airtable.com/shr02O8EpL4K9tEXj"
+      );
+    }
   };
 
   return (
@@ -144,7 +151,7 @@ export default function Content() {
   const getArticles = () => {
     base("Publication")
       .select({
-        // Selecting the first 3 records in Grid view:
+        // Selecting the first 6 records in Grid view:
         maxRecords: 6,
         view: "Grid view",
       })

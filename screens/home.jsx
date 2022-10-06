@@ -360,38 +360,37 @@ function FistTime({ navtoform }) {
     <View
       style={{
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         height: "100%",
         width: "100%",
       }}
     >
-      <Text style={style.fisttimeuserhello}>Hello.</Text>
-      <Text style={style.firsttimeintro}>
-        Welcome to Ivy Woman, we are going to need you to provide us with some
-        information to help us analyze your cycle.
-      </Text>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          height: "50%",
+          width: "100%",
+          backgroundColor: "lavender",
+          paddingBottom: 20,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}
+      >
+        <Text style={style.fisttimeuserhello}>Hello.</Text>
+        <Text style={style.firsttimeintro}>
+          Welcome to Ivy Woman, we are going to need you to provide us with some
+          information to help us analyze your cycle. This app provides only
+          information for educational purposes. This App is not medical or
+          treatment advice, professional diagnosis, opinion, or services – and
+          may not be treated as such by the user.
+        </Text>
 
-      <TouchableOpacity style={style.firstitmebtn} onPress={navtoform}>
-        <Text style={{ fontSize: 30, fontWeight: "bold", color: "white" }}>
-          Let's get started
-        </Text>
-      </TouchableOpacity>
-      <View style={{ padding: 20, marginTop: 30 }}>
-        <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-          Legal Disclaimer
-        </Text>
-        <Text
-          style={{
-            fontFamily: "Poppins-Light",
-            color: colors.font,
-          }}
-        >
-          This app provides only information for educational purposes. This App
-          is not medical or treatment advice, professional diagnosis, opinion,
-          or services – and may not be treated as such by the user. As such,
-          this App may not be relied upon for the purposes of medical diagnosis
-          or as a recommendation for medical care or treatment.
-        </Text>
+        <TouchableOpacity style={style.firstitmebtn} onPress={navtoform}>
+          <Text style={{ fontSize: 30, fontWeight: "bold", color: "white" }}>
+            Let's get started
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -550,7 +549,7 @@ export default function Home({ navigation }) {
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <Logperiod close={closeModal} />
       </Modal>
-      <Modal animationType="slide" transparent={false} visible={modalVisible2}>
+      <Modal animationType="slide" transparent={true} visible={modalVisible2}>
         <FistTime navtoform={closeModal2} />
       </Modal>
     </ScrollView>

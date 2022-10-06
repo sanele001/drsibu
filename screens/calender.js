@@ -83,7 +83,6 @@ function Clndr({ nav }) {
           "you haven't added any details, please go to home and change cycle details."
         );
       }
-      console.log(e);
     }
   };
 
